@@ -13,7 +13,9 @@ export async function selectByContractIdAndTimeFrame(
     .andWhereBetween('time', [from.toISOString(), to.toISOString()]);
 
   const items = await model.clone().select();
-  const [{ 'sum(`value`)': sum }] = await model.clone().sum('value');
+
+  const [sumResult] = await model.clone().sum('value');
+  const [sum] = Object.values(sumResult);
 
   return { items, sum };
 }
