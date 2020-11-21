@@ -10,6 +10,9 @@
 # configuration
 .env
 
+# database
+db.sqlite
+
 # misc
 .DS_Store
 

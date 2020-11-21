@@ -1,11 +1,9 @@
 import { useEnv, getNotNull, getOneOf } from './env';
 
-const NODE_ENV = getOneOf('NODE_ENV', ['production', 'development', 'test']);
+const environment = getOneOf('NODE_ENV', ['production', 'development', 'test']);
 
-const isProduction = NODE_ENV === 'production';
+const isProduction = environment === 'production';
 
 useEnv(isProduction);
 
-// Settings
-
-export const SERVER_PORT = getNotNull('SERVER_PORT');
+export const port = getNotNull('SERVER_PORT');
