@@ -31,6 +31,39 @@ export const typeDefs = gql`
       timeEnd: DateTime!
     ): PaymentsData
   }
+
+  type AddPaymentResult {
+    id: Int!
+  }
+
+  type UpdatePaymentResult {
+    success: Boolean!
+  }
+
+  type DeletePaymentResult {
+    success: Boolean!
+  }
+
+  type Mutation {
+    addPayment(
+      contractId: Int!
+      description: String!
+      value: Float!
+      time: DateTime!
+      isImported: Boolean!
+    ): AddPaymentResult!
+
+    updatePayment(
+      id: Int!
+      contractId: Int!
+      description: String!
+      value: Float!
+      time: DateTime!
+      isImported: Boolean!
+    ): UpdatePaymentResult!
+
+    deletePayment(id: Int!): DeletePaymentResult!
+  }
 `;
 
 export const resolvers = {
@@ -62,6 +95,28 @@ export const resolvers = {
       );
 
       return result;
+    },
+  },
+
+  Mutation: {
+    addPayment: async (parent: any, args: any) => {
+      const [id] = await repository.payments.addOne(args);
+
+      return { id };
+    },
+
+    updatePayment: async (parent: any, args: any) => {
+      const { id, ...payment } = args;
+
+      const success = await repository.payments.updateOne(id, payment);
+
+      return { success };
+    },
+
+    deletePayment: async (parent: any, args: any) => {
+      const success = await repository.payments.deleteOne(args.id);
+
+      return { success };
     },
   },
 };
