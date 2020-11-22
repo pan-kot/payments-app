@@ -1,5 +1,6 @@
 import express from 'express';
 import { gql } from 'apollo-server-express';
+import { GraphQLScalarType, Kind } from 'graphql';
 
 import * as repository from './repository';
 
@@ -10,7 +11,7 @@ export const typeDefs = gql`
     id: Int!
     contractId: Int!
     description: String!
-    value: Int!
+    value: Float!
     time: DateTime!
     isImported: Boolean!
     createdAt: DateTime!
@@ -18,20 +19,49 @@ export const typeDefs = gql`
     isDeleted: Boolean!
   }
 
+  type PaymentsData {
+    sum: Float!
+    items: [Payment]!
+  }
+
   type Query {
-    payments: [Payment]
+    payments(
+      contractId: Int!
+      timeStart: DateTime!
+      timeEnd: DateTime!
+    ): PaymentsData
   }
 `;
 
 export const resolvers = {
+  DateTime: new GraphQLScalarType({
+    name: 'DateTime',
+    description: 'DateTime custom scalar type',
+    parseValue(value) {
+      return new Date(value);
+    },
+    serialize(value) {
+      return value;
+    },
+    parseLiteral(ast) {
+      switch (ast.kind) {
+        case Kind.STRING:
+          return new Date(ast.value);
+
+        default:
+          return null;
+      }
+    },
+  }),
+
   Query: {
-    payments: async () => {
+    payments: async (parent: any, args: any) => {
       const result = await repository.payments.selectByContractIdAndTimeFrame(
-        1,
-        [new Date('2020-01-01'), new Date('2021-01-01')]
+        args.contractId,
+        [args.timeStart, args.timeEnd]
       );
 
-      return result.items;
+      return result;
     },
   },
 };

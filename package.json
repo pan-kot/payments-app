@@ -11,8 +11,9 @@
     "lint": "yarn tslint --project . --fix",
     "format": "yarn prettier --write .",
     "test": "NODE_ENV=test yarn jest --watch",
-    "db:migrate": "knex migrate:latest",
-    "db:rollback": "knex migrate:rollback"
+    "db:migrate": "yarn knex migrate:latest",
+    "db:rollback": "yarn knex migrate:rollback",
+    "db:seed:demo": "yarn knex seed:run --specific=demo.ts"
   },
   "lint-staged": {
     "*.{ts}": [
