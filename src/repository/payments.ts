@@ -1,11 +1,12 @@
 import knex from './knex';
 
+import { Payment } from '../model';
 import { PaymentDto } from './types';
 
 export async function selectByContractIdAndTimeFrame(
   contractId: number,
   [from, to]: [Date, Date]
-) {
+): Promise<{ items: Payment[]; sum: number }> {
   const model = knex
     .table('payments')
     .where({ isDeleted: false })
@@ -15,17 +16,17 @@ export async function selectByContractIdAndTimeFrame(
   const items = await model.clone().select();
 
   const [sumResult] = await model.clone().sum('value');
-  const [sum] = Object.values(sumResult);
+  const [sum] = Object.values(sumResult) as any;
 
   return { items, sum };
 }
 
-export function addOne(payment: PaymentDto) {
+export async function addOne(payment: PaymentDto) {
   const { contractId, description, value, time, isImported } = payment;
 
   const now = new Date().toISOString();
 
-  return knex('payments').insert({
+  const [id] = await knex('payments').insert({
     contractId,
     description,
     value,
@@ -34,14 +35,16 @@ export function addOne(payment: PaymentDto) {
     createdAt: now,
     updatedAt: now,
   });
+
+  return id;
 }
 
-export function updateOne(id: number, payment: PaymentDto) {
+export async function updateOne(id: number, payment: PaymentDto) {
   const { contractId, description, value, time, isImported } = payment;
 
   const now = new Date().toISOString();
 
-  return knex('payments').where({ id }).update({
+  const status = await knex('payments').where({ id }).update({
     contractId,
     description,
     value,
@@ -49,8 +52,14 @@ export function updateOne(id: number, payment: PaymentDto) {
     isImported,
     updatedAt: now,
   });
+
+  return Boolean(status);
 }
 
-export function deleteOne(id: number) {
-  return knex('payments').where({ id }).update({ isDeleted: true });
+export async function deleteOne(id: number) {
+  const status = await knex('payments')
+    .where({ id })
+    .update({ isDeleted: true });
+
+  return Boolean(status);
 }

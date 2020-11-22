@@ -1,12 +1,9 @@
-import express from 'express';
 import { gql } from 'apollo-server-express';
-import { GraphQLScalarType, Kind } from 'graphql';
 
-import * as repository from './repository';
+import { Payment } from '../model';
+import * as repository from '../repository';
 
 export const typeDefs = gql`
-  scalar DateTime
-
   type Payment {
     id: Int!
     contractId: Int!
@@ -27,8 +24,8 @@ export const typeDefs = gql`
   type Query {
     payments(
       contractId: Int!
-      timeStart: DateTime!
-      timeEnd: DateTime!
+      frameStart: DateTime!
+      frameEnd: DateTime!
     ): PaymentsData
   }
 
@@ -66,32 +63,43 @@ export const typeDefs = gql`
   }
 `;
 
+type PaymentsArgs = {
+  contractId: number;
+  frameStart: Date;
+  frameEnd: Date;
+};
+
+type PaymentsData = {
+  sum: number;
+  items: Payment[];
+};
+
+type PaymentDto = {
+  contractId: number;
+  description: string;
+  value: number;
+  time: Date;
+  isImported: boolean;
+};
+
+type AddPaymentArgs = PaymentDto;
+
+type AddPaymentResult = { id: number };
+
+type UpdatePaymentArgs = { id: number } & PaymentDto;
+
+type UpdatePaymentResult = { success: boolean };
+
+type DeletePaymentArgs = { id: number };
+
+type DeletePaymentResult = { success: boolean };
+
 export const resolvers = {
-  DateTime: new GraphQLScalarType({
-    name: 'DateTime',
-    description: 'DateTime custom scalar type',
-    parseValue(value) {
-      return new Date(value);
-    },
-    serialize(value) {
-      return value;
-    },
-    parseLiteral(ast) {
-      switch (ast.kind) {
-        case Kind.STRING:
-          return new Date(ast.value);
-
-        default:
-          return null;
-      }
-    },
-  }),
-
   Query: {
-    payments: async (parent: any, args: any) => {
+    payments: async (_: any, args: PaymentsArgs): Promise<PaymentsData> => {
       const result = await repository.payments.selectByContractIdAndTimeFrame(
         args.contractId,
-        [args.timeStart, args.timeEnd]
+        [args.frameStart, args.frameEnd]
       );
 
       return result;
@@ -99,13 +107,19 @@ export const resolvers = {
   },
 
   Mutation: {
-    addPayment: async (parent: any, args: any) => {
-      const [id] = await repository.payments.addOne(args);
+    addPayment: async (
+      _: any,
+      args: AddPaymentArgs
+    ): Promise<AddPaymentResult> => {
+      const id = await repository.payments.addOne(args);
 
       return { id };
     },
 
-    updatePayment: async (parent: any, args: any) => {
+    updatePayment: async (
+      _: any,
+      args: UpdatePaymentArgs
+    ): Promise<UpdatePaymentResult> => {
       const { id, ...payment } = args;
 
       const success = await repository.payments.updateOne(id, payment);
@@ -113,7 +127,10 @@ export const resolvers = {
       return { success };
     },
 
-    deletePayment: async (parent: any, args: any) => {
+    deletePayment: async (
+      _: any,
+      args: DeletePaymentArgs
+    ): Promise<DeletePaymentResult> => {
       const success = await repository.payments.deleteOne(args.id);
 
       return { success };

@@ -2,7 +2,7 @@ import { useEnv, getNotNull, getOneOf } from './env';
 
 const environment = getOneOf('NODE_ENV', ['production', 'development', 'test']);
 
-const isProduction = environment === 'production';
+export const isProduction = environment === 'production';
 
 useEnv(isProduction);
 
