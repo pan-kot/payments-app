@@ -4,5 +4,6 @@ export default {
     connection: {
       filename: './db.sqlite',
     },
+    useNullAsDefault: true,
   },
 };

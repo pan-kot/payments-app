@@ -1,20 +1,13 @@
 import express from 'express';
-import { ApolloServer, gql } from 'apollo-server-express';
 
-import { port, isProduction } from './config';
+import { port } from './config';
 
-import { typeDefs, resolvers } from './schema';
+import apollo from './apollo';
 
 const app = express();
 
-app.get('/healthcheck', (req, res) => {
+app.get('/healthcheck', (_, res) => {
   res.status(200).send('OK');
-});
-
-const apollo = new ApolloServer({
-  typeDefs,
-  resolvers,
-  playground: !isProduction,
 });
 
 apollo.applyMiddleware({ app });

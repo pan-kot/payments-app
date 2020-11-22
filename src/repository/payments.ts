@@ -16,7 +16,8 @@ export async function selectByContractIdAndTimeFrame(
   const items = await model.clone().select();
 
   const [sumResult] = await model.clone().sum('value');
-  const [sum] = Object.values(sumResult) as any;
+  const [_sum] = Object.values(sumResult);
+  const sum = typeof _sum === 'number' ? _sum : 0;
 
   return { items, sum };
 }
