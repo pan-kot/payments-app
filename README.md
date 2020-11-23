@@ -11,6 +11,11 @@ Note: production mode requires application settings specified in the `.env` file
 
 yarn install
 
+# Setup database
+
+yarn db:migrate
+yarn db:seed:demo
+
 # Run in the development mode
 
 yarn dev
