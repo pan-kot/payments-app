@@ -6,26 +6,34 @@ This is a playground Node.js application.
 
 Note: production mode requires application settings specified in the `.env` file. See `.env.sample` for reference.
 
+## Install the dependencies
+
 ```
-# Install the dependencies
-
 yarn install
+```
 
-# Setup database
+## Setup database
 
+```
 yarn db:migrate
 yarn db:seed:demo
+```
 
-# Run in the development mode
+## Run in the development mode
 
+```
 yarn dev
+```
 
-# Run in the production mode
+## Run in the production mode
 
+```
 yarn build
 yarn start
+```
 
-# Run all tests
+## Run all tests
 
+```
 yarn test
 ```
